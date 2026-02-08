@@ -40,16 +40,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   typeEffect();
 
-  // BUTTON CLICK (FIXED)
-  holdBtn.addEventListener("click", () => {
+  /* ✅ TOUCH-END EVENT (ANDROID FIX) */
+  holdBtn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+
     hold.classList.add("hidden");
     proposal.classList.remove("hidden");
 
     const music = document.getElementById("bgMusic");
     music.volume = 0.4;
-    music.play().catch(() => {
-      console.log("Music will start after interaction");
-    });
+    music.play().catch(() => {});
 
     setInterval(() => {
       const heart = document.createElement("div");
