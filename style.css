@@ -1,21 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-/* 🔒 STOP TEXT SELECTION & LONG PRESS */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
+}
 
+/* prevent selection EXCEPT buttons */
+body {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
-}
 
-body {
   height: 100vh;
   overflow: hidden;
   background: linear-gradient(135deg, #fde6ef, #f7ecff);
+}
+
+button {
+  user-select: none;
 }
 
 /* TERMINAL */
@@ -45,7 +49,6 @@ body {
   align-items: center;
   text-align: center;
   color: #7a6fa4;
-  pointer-events: auto;
 }
 
 #hold h1 {
@@ -67,7 +70,7 @@ body {
   color: #d48bb3;
 }
 
-/* ✅ REAL TAP BUTTON */
+/* THE BUTTON */
 #holdBtn {
   background: #c7b4ff;
   color: white;
@@ -76,12 +79,8 @@ body {
   border-radius: 30px;
   font-size: 15px;
 
-  position: relative;
-  z-index: 9999;
-
-  touch-action: manipulation;
-  pointer-events: auto;
   cursor: pointer;
+  touch-action: manipulation;
 
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
@@ -118,7 +117,7 @@ body {
   margin-bottom: 15px;
 }
 
-/* FLOATING HEARTS */
+/* HEARTS */
 .heart {
   position: absolute;
   font-size: 14px;
