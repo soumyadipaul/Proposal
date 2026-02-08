@@ -8,28 +8,23 @@
 </head>
 <body>
 
-  <!-- TERMINAL INTRO -->
   <section id="terminal">
     <pre id="code"></pre>
   </section>
 
-  <!-- HOLD SCREEN -->
   <section id="hold" class="hidden">
     <h1>Pause and hold your heart</h1>
     <p>Something special is waiting…</p>
 
     <div class="labels">
-      <span>You</span>
-      <span>Me</span>
-      <span>Us</span>
-      <span>Always</span>
-      <span>Forever</span>
+      <span>You</span><span>Me</span><span>Us</span>
+      <span>Always</span><span>Forever</span>
     </div>
 
-    <button id="holdBtn" type="button">Hold me gently 🤍</button>
+    <!-- ✅ INLINE CLICK (BULLETPROOF) -->
+    <button id="holdBtn" onclick="proceed()">Hold me gently 🤍</button>
   </section>
 
-  <!-- FINAL PROPOSAL -->
   <section id="proposal" class="hidden">
     <audio id="bgMusic" src="music.mp3" loop></audio>
 
