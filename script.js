@@ -8,7 +8,7 @@ const music = document.getElementById("bgMusic");
 /* ---------------- TERMINAL TYPE EFFECT ---------------- */
 
 const lines = [
-  "C:\\Users\\You> startlove.exe",
+  "C:\\Users\\You> start love.exe",
   "",
   "Initializing feelings...",
   "Loading memories...",
@@ -40,27 +40,34 @@ function typeCode() {
 
 window.addEventListener("load", typeCode);
 
-/* ---------------- AUDIO UNLOCK (MOBILE FIX) ---------------- */
+/* ---------------- AUDIO (REAL MOBILE-SAFE METHOD) ---------------- */
 
-let audioUnlocked = false;
+let audioStarted = false;
 
-function unlockAudio() {
-  if (audioUnlocked) return;
-  audioUnlocked = true;
+function startSilentAudio() {
+  if (audioStarted) return;
+  audioStarted = true;
 
   try {
-    music.volume = 0.4;
-    const playPromise = music.play();
-
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          music.pause();
-          music.currentTime = 0;
-        })
-        .catch(() => {});
-    }
+    music.volume = 0;       // start silent
+    music.loop = true;
+    music.play();           // NEVER pause again
   } catch {}
+}
+
+function fadeInAudio() {
+  let vol = 0;
+  music.volume = 0;
+
+  const fade = setInterval(() => {
+    vol += 0.02;
+    if (vol >= 0.4) {
+      music.volume = 0.4;
+      clearInterval(fade);
+    } else {
+      music.volume = vol;
+    }
+  }, 60);
 }
 
 /* ---------------- PRESS & HOLD LOGIC ---------------- */
@@ -71,8 +78,8 @@ let holding = false;
 function startHold(e) {
   e.preventDefault();
 
-  // 🔑 Unlock audio at FIRST user gesture
-  unlockAudio();
+  // 🔑 Start audio inside the REAL gesture
+  startSilentAudio();
 
   if (holding) return;
   holding = true;
@@ -105,11 +112,8 @@ function revealProposal() {
   hold.classList.replace("visible", "hidden");
   proposal.classList.replace("hidden", "visible");
 
-  try {
-    music.currentTime = 0;
-    music.volume = 0.4;
-    music.play();
-  } catch {}
+  // 🔊 Fade audio IN (already playing)
+  fadeInAudio();
 
   startHearts();
 }
@@ -127,8 +131,6 @@ function startHearts() {
 
     document.body.appendChild(heart);
 
-    setTimeout(() => {
-      heart.remove();
-    }, 8000);
+    setTimeout(() => heart.remove(), 8000);
   }, 250);
 }
