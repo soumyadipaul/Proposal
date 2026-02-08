@@ -1,20 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-/* Base */
-* { box-sizing: border-box; }
-html,body { height:100%; }
-body{
-  margin:0;
-  font-family:'Poppins',sans-serif;
-  background: linear-gradient(135deg,#fde6ef,#f7ecff);
+/* GLOBAL SAFETY */
+* {
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
-  user-select: none;           /* prevent long-press selection */
+  user-select: none;
   -webkit-user-select: none;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #fde6ef, #f6eaff);
   overflow: hidden;
 }
 
-/* layout: keep each "screen" in DOM (no display:none) */
+/* SCREEN SYSTEM (NO display:none) */
 .screen {
   position: absolute;
   inset: 0;
@@ -23,99 +29,128 @@ body{
   justify-content: center;
   align-items: center;
   text-align: center;
-  transition: opacity 320ms ease, transform 320ms ease;
-  will-change: opacity, transform;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-/* visible / hidden states (no display:none) */
 .visible {
   opacity: 1;
-  transform: translateY(0);
   pointer-events: auto;
+  transform: translateY(0);
 }
+
 .hidden {
   opacity: 0;
-  transform: translateY(18px);
   pointer-events: none;
+  transform: translateY(20px);
 }
 
-/* Terminal style */
+/* TERMINAL */
 #terminal {
-  background: #000;
+  background: black;
   color: #eaeaea;
-  padding: 20px;
   font-size: 14px;
+  padding: 20px;
 }
+
 #code {
-  width: 100%;
-  max-width: 720px;
+  max-width: 700px;
   white-space: pre-wrap;
-  word-break: break-word;
 }
+
 #code::after {
   content: "▋";
-  animation: blink 1s steps(1) infinite;
-}
-@keyframes blink { 50%{opacity:0} }
-
-/* Hold screen */
-#hold h1 { font-size: 26px; color:#7a6fa4; margin-bottom:8px; }
-#hold p { font-size:14px; color: #6f5f88; margin-bottom:18px; opacity:0.9; }
-
-.labels {
-  margin: 18px 0 28px;
-  display:grid;
-  grid-template-columns: repeat(3, auto);
-  gap: 12px 40px;
-  color: #d48bb3;
-  font-size:12px;
+  animation: blink 1s infinite;
 }
 
-/* Button - explicitly unselectable and touch ready */
-button {
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-  touch-action: manipulation;
-  border: none;
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* HOLD */
+#hold h1 {
+  color: #7a6fa4;
+  margin-bottom: 6px;
+}
+
+#hold p {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 22px;
+}
+
+#holdBtn {
+  position: relative;
   background: #c7b4ff;
-  color: #fff;
+  color: white;
+  border: none;
   padding: 14px 30px;
   border-radius: 30px;
   font-size: 15px;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-  outline: none;
+  overflow: hidden;
+  touch-action: manipulation;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
-/* Proposal */
+/* HOLD PROGRESS */
+#holdBtn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0%;
+  background: rgba(255,255,255,0.25);
+}
+
+#holdBtn.holding::after {
+  animation: holdFill 1.6s linear forwards;
+}
+
+@keyframes holdFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* PROPOSAL */
 .card {
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.85);
   padding: 36px;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.16);
+  border-radius: 22px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.18);
   max-width: 90%;
 }
-.card h2 { color:#7b6cff; margin:6px 0 10px; }
-.card p { color:#5b4f78; opacity:0.95; }
 
-/* Hearts animation */
+.card h2 {
+  color: #7b6cff;
+  margin: 10px 0;
+}
+
+.card p {
+  color: #5a4f78;
+}
+
+.ring {
+  font-size: 42px;
+}
+
+/* HEARTS */
 .heart {
   position: absolute;
+  bottom: -20px;
   font-size: 18px;
   pointer-events: none;
-  animation: floatUp linear forwards;
-}
-@keyframes floatUp {
-  0%   { transform: translateY(0) scale(1); opacity: 1; }
-  70%  { transform: translateY(-60vh) scale(1.05); opacity: 0.9; }
-  100% { transform: translateY(-120vh) scale(1.1); opacity: 0; }
+  animation-name: floatUp;
+  animation-timing-function: linear;
 }
 
-/* small responsive tweaks */
-@media (max-width:420px){
-  #hold h1{font-size:22px}
-  .card{padding:28px}
-  .heart{font-size:16px}
+@keyframes floatUp {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-120vh) scale(1.1);
+    opacity: 0;
+  }
 }
