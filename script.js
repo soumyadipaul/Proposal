@@ -1,92 +1,99 @@
-// Keep in top-level so inline onclick can call proceed()
-(function () {
-  const codeEl = document.getElementById("code");
-  const terminal = document.getElementById("terminal");
-  const hold = document.getElementById("hold");
-  const proposal = document.getElementById("proposal");
-  const holdBtn = document.getElementById("holdBtn");
+const codeEl = document.getElementById("code");
+const terminal = document.getElementById("terminal");
+const hold = document.getElementById("hold");
+const proposal = document.getElementById("proposal");
+const holdBtn = document.getElementById("holdBtn");
+const music = document.getElementById("bgMusic");
 
-  const codeLines = [
-    "C:\\Users\\You> start love.html",
-    "",
-    "Initializing feelings...",
-    "Loading memories...",
-    "Compiling moments...",
-    "Build successful ❤️",
-  ];
+const lines = [
+  "C:\\Users\\You> start love.exe",
+  "",
+  "Initializing feelings...",
+  "Loading memories...",
+  "Compiling moments...",
+  "Build successful ❤️"
+];
 
-  let line = 0;
-  let ch = 0;
+let line = 0;
+let char = 0;
 
-  function typeEffect() {
-    if (line < codeLines.length) {
-      if (ch < codeLines[line].length) {
-        codeEl.textContent += codeLines[line][ch++];
-        setTimeout(typeEffect, 36);
-      } else {
-        codeEl.textContent += "\n";
-        line++;
-        ch = 0;
-        setTimeout(typeEffect, 320);
-      }
+/* TERMINAL TYPE */
+function typeCode() {
+  if (line < lines.length) {
+    if (char < lines[line].length) {
+      codeEl.textContent += lines[line][char++];
+      setTimeout(typeCode, 35);
     } else {
-      setTimeout(() => {
-        // hide terminal (no display:none)
-        terminal.classList.remove("visible");
-        terminal.classList.add("hidden");
-        // show hold
-        hold.classList.remove("hidden");
-        hold.classList.add("visible");
-      }, 700);
+      codeEl.textContent += "\n";
+      line++;
+      char = 0;
+      setTimeout(typeCode, 300);
     }
+  } else {
+    setTimeout(() => {
+      terminal.classList.replace("visible", "hidden");
+      hold.classList.replace("hidden", "visible");
+    }, 600);
   }
-  // start typing on load
-  window.addEventListener("load", typeEffect);
+}
 
-  // proceed is global and inline onclick uses it
-  window.proceed = function proceed() {
-    // immediately guard to prevent double taps
-    if (!hold.classList.contains("visible")) return;
+window.addEventListener("load", typeCode);
 
-    // hide hold, show proposal (no display:none used)
-    hold.classList.remove("visible");
-    hold.classList.add("hidden");
-    proposal.classList.remove("hidden");
-    proposal.classList.add("visible");
+/* PRESS & HOLD LOGIC */
+let holdTimer = null;
+let holding = false;
 
-    // play music (mobile requires user interaction; we have it)
-    const music = document.getElementById("bgMusic");
-    try { music.volume = 0.4; music.play(); } catch (e) { /* ignore */ }
+function startHold(e) {
+  e.preventDefault();
+  if (holding) return;
+  holding = true;
+  holdBtn.classList.add("holding");
 
-    // generate hearts using CSS animation
-    const heartInterval = setInterval(() => {
-      const heart = document.createElement("div");
-      heart.className = "heart";
-      heart.textContent = Math.random() > 0.5 ? "💗" : "💜";
+  holdTimer = setTimeout(() => {
+    revealProposal();
+  }, 1600);
+}
 
-      // randomize start position and slight rotation
-      const left = Math.floor(Math.random() * 90) + 2; // 2vw..92vw
-      heart.style.left = left + "vw";
-      heart.style.bottom = "-10px";
-      heart.style.transform = `rotate(${Math.random()*40-20}deg)`;
+function cancelHold() {
+  holding = false;
+  holdBtn.classList.remove("holding");
+  clearTimeout(holdTimer);
+}
 
-      document.body.appendChild(heart);
+/* EVENTS */
+holdBtn.addEventListener("touchstart", startHold);
+holdBtn.addEventListener("touchend", cancelHold);
+holdBtn.addEventListener("touchcancel", cancelHold);
 
-      // remove after animation duration (approx 4.2s)
-      setTimeout(() => {
-        heart.remove();
-      }, 4200);
-    }, 320);
+holdBtn.addEventListener("mousedown", startHold);
+holdBtn.addEventListener("mouseup", cancelHold);
+holdBtn.addEventListener("mouseleave", cancelHold);
 
-    // stop creating hearts after some time to avoid clutter (optional)
-    setTimeout(() => clearInterval(heartInterval), 12000);
-  };
+/* FINAL REVEAL */
+function revealProposal() {
+  hold.classList.replace("visible", "hidden");
+  proposal.classList.replace("hidden", "visible");
 
-  // Add a safe JS fallback listener too (shouldn't hurt)
-  window.addEventListener("DOMContentLoaded", () => {
-    if (holdBtn) {
-      holdBtn.addEventListener("click", () => { /* inline proceed covers it */ });
-      holdBtn.addEventListener("touchstart", () => { /* inline proceed covers it */ });
-    }
-  });
-})();
+  try {
+    music.volume = 0.4;
+    music.play();
+  } catch {}
+
+  startHearts();
+}
+
+/* CONTINUOUS HEARTS */
+function startHearts() {
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.textContent = Math.random() > 0.5 ? "💗" : "💜";
+
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = (4 + Math.random() * 3) + "s";
+
+    document.body.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 8000);
+  }, 250);
+}
