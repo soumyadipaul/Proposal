@@ -3,29 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>For Pratistha ❤️</title>
+  <title>For Pratistha 🤍</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <!-- TERMINAL -->
-  <div id="terminal" class="visible">
+  <section id="terminal" class="screen visible">
     <pre id="code"></pre>
-  </div>
+  </section>
 
-  <!-- HOLD SCREEN -->
-  <div id="hold" class="hidden">
-    <button id="holdBtn">Hold me gently 🤍</button>
-  </div>
+  <!-- HOLD -->
+  <section id="hold" class="screen hidden">
+    <h1>Pause for a moment</h1>
+    <p>Hold gently… something special is waiting</p>
+
+    <button id="holdBtn" type="button">
+      Hold me gently 🤍
+    </button>
+  </section>
 
   <!-- PROPOSAL -->
-  <div id="proposal" class="hidden">
-    <h1>Pratistha ❤️</h1>
-    <p>Will you be mine?</p>
-  </div>
+  <section id="proposal" class="screen hidden">
+    <audio id="bgMusic" src="music.mp3" loop></audio>
 
-  <!-- MUSIC -->
-  <audio id="bgMusic" src="music.mp3" preload="auto"></audio>
+    <div class="card">
+      <div class="ring">💍</div>
+      <h2>Pratistha, will you be mine forever?</h2>
+      <p>
+        From quiet moments to loud dreams —  
+        I want every tomorrow with you.
+      </p>
+    </div>
+  </section>
 
   <script src="script.js"></script>
 </body>
