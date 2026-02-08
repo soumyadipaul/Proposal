@@ -1,87 +1,121 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
-body {
-  height: 100vh;
-  background: linear-gradient(135deg, #fde6ef, #f7ecff);
-  overflow: hidden;
+/* Base */
+* { box-sizing: border-box; }
+html,body { height:100%; }
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background: linear-gradient(135deg,#fde6ef,#f7ecff);
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;           /* prevent long-press selection */
+  -webkit-user-select: none;
+  overflow: hidden;
 }
 
-/* TERMINAL */
-#terminal {
-  background: black;
-  color: #eaeaea;
-  height: 100vh;
-  padding: 20px;
-  font-size: 14px;
-}
-
-#code::after {
-  content: "▋";
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
-}
-
-/* HOLD SCREEN */
-#hold {
-  height: 100vh;
+/* layout: keep each "screen" in DOM (no display:none) */
+.screen {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  color: #7a6fa4;
+  transition: opacity 320ms ease, transform 320ms ease;
+  will-change: opacity, transform;
 }
+
+/* visible / hidden states (no display:none) */
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.hidden {
+  opacity: 0;
+  transform: translateY(18px);
+  pointer-events: none;
+}
+
+/* Terminal style */
+#terminal {
+  background: #000;
+  color: #eaeaea;
+  padding: 20px;
+  font-size: 14px;
+}
+#code {
+  width: 100%;
+  max-width: 720px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+#code::after {
+  content: "▋";
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50%{opacity:0} }
+
+/* Hold screen */
+#hold h1 { font-size: 26px; color:#7a6fa4; margin-bottom:8px; }
+#hold p { font-size:14px; color: #6f5f88; margin-bottom:18px; opacity:0.9; }
 
 .labels {
-  margin: 30px 0;
-  font-size: 12px;
-  color: #d48bb3;
-  display: grid;
+  margin: 18px 0 28px;
+  display:grid;
   grid-template-columns: repeat(3, auto);
   gap: 12px 40px;
+  color: #d48bb3;
+  font-size:12px;
 }
 
+/* Button - explicitly unselectable and touch ready */
 button {
-  background: #c7b4ff;
-  color: white;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
   border: none;
+  background: #c7b4ff;
+  color: #fff;
   padding: 14px 30px;
   border-radius: 30px;
   font-size: 15px;
   cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  outline: none;
 }
 
-/* PROPOSAL */
-#proposal {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
+/* Proposal */
 .card {
-  background: rgba(255,255,255,0.75);
-  padding: 40px;
-  border-radius: 24px;
-  text-align: center;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(10px);
+  padding: 36px;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.16);
+  max-width: 90%;
+}
+.card h2 { color:#7b6cff; margin:6px 0 10px; }
+.card p { color:#5b4f78; opacity:0.95; }
+
+/* Hearts animation */
+.heart {
+  position: absolute;
+  font-size: 18px;
+  pointer-events: none;
+  animation: floatUp linear forwards;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  70%  { transform: translateY(-60vh) scale(1.05); opacity: 0.9; }
+  100% { transform: translateY(-120vh) scale(1.1); opacity: 0; }
 }
 
-.ring {
-  font-size: 42px;
-  margin-bottom: 15px;
-}
-
-.hidden {
-  display: none;
+/* small responsive tweaks */
+@media (max-width:420px){
+  #hold h1{font-size:22px}
+  .card{padding:28px}
+  .heart{font-size:16px}
 }
