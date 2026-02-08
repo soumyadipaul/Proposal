@@ -40,7 +40,7 @@ function typeCode() {
 
 window.addEventListener("load", typeCode);
 
-/* ---------------- AUDIO (REAL MOBILE-SAFE METHOD) ---------------- */
+/* ---------------- AUDIO (GESTURE-SAFE) ---------------- */
 
 let audioStarted = false;
 
@@ -49,9 +49,9 @@ function startSilentAudio() {
   audioStarted = true;
 
   try {
-    music.volume = 0;       // start silent
+    music.volume = 0;
     music.loop = true;
-    music.play();           // NEVER pause again
+    music.play(); // MUST be inside a real gesture
   } catch {}
 }
 
@@ -75,12 +75,7 @@ function fadeInAudio() {
 let holdTimer = null;
 let holding = false;
 
-function startHold(e) {
-  e.preventDefault();
-
-  // 🔑 Start audio inside the REAL gesture
-  startSilentAudio();
-
+function startHold() {
   if (holding) return;
   holding = true;
   holdBtn.classList.add("holding");
@@ -96,15 +91,21 @@ function cancelHold() {
   clearTimeout(holdTimer);
 }
 
-/* ---------------- BUTTON EVENTS ---------------- */
+/* ---------------- EVENTS ---------------- */
 
-holdBtn.addEventListener("touchstart", startHold);
-holdBtn.addEventListener("touchend", cancelHold);
+/* 🔑 REAL USER GESTURE — DO NOT preventDefault here */
+holdBtn.addEventListener("pointerdown", () => {
+  startSilentAudio();
+  startHold();
+});
+
+/* These prevent text selection / drag */
+holdBtn.addEventListener("touchstart", (e) => e.preventDefault());
+holdBtn.addEventListener("mousedown", (e) => e.preventDefault());
+
+holdBtn.addEventListener("pointerup", cancelHold);
+holdBtn.addEventListener("pointerleave", cancelHold);
 holdBtn.addEventListener("touchcancel", cancelHold);
-
-holdBtn.addEventListener("mousedown", startHold);
-holdBtn.addEventListener("mouseup", cancelHold);
-holdBtn.addEventListener("mouseleave", cancelHold);
 
 /* ---------------- FINAL REVEAL ---------------- */
 
@@ -112,7 +113,7 @@ function revealProposal() {
   hold.classList.replace("visible", "hidden");
   proposal.classList.replace("hidden", "visible");
 
-  // 🔊 Fade audio IN (already playing)
+  music.currentTime = 0; // ensure start is heard
   fadeInAudio();
 
   startHearts();
@@ -130,7 +131,6 @@ function startHearts() {
     heart.style.animationDuration = (4 + Math.random() * 3) + "s";
 
     document.body.appendChild(heart);
-
     setTimeout(() => heart.remove(), 8000);
   }, 250);
 }
