@@ -1,40 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>For Pratistha 🤍</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <section id="terminal">
-    <pre id="code"></pre>
+  <!-- TERMINAL INTRO -->
+  <section id="terminal" class="screen visible">
+    <pre id="code" aria-hidden="false"></pre>
   </section>
 
-  <section id="hold" class="hidden">
+  <!-- HOLD SCREEN -->
+  <section id="hold" class="screen hidden" aria-hidden="true">
     <h1>Pause and hold your heart</h1>
     <p>Something special is waiting…</p>
 
-    <div class="labels">
+    <div class="labels" aria-hidden="true">
       <span>You</span><span>Me</span><span>Us</span>
       <span>Always</span><span>Forever</span>
     </div>
 
-    <!-- ✅ INLINE CLICK (BULLETPROOF) -->
-    <button id="holdBtn" onclick="proceed()">Hold me gently 🤍</button>
+    <!-- inline onclick (bulletproof) + id for JS fallback -->
+    <button id="holdBtn" type="button" onclick="proceed()">Hold me gently 🤍</button>
   </section>
 
-  <section id="proposal" class="hidden">
-    <audio id="bgMusic" src="music.mp3" loop></audio>
+  <!-- FINAL PROPOSAL -->
+  <section id="proposal" class="screen hidden" aria-hidden="true">
+    <audio id="bgMusic" src="music.mp3" loop preload="none"></audio>
 
-    <div class="card">
+    <div class="card" role="dialog" aria-modal="true">
       <div class="ring">💍</div>
       <h2>Pratistha, will you be mine forever?</h2>
-      <p>
-        From this moment on, I want every smile,
-        every dream, every tomorrow — with you.
-      </p>
+      <p>From this moment on, I want every smile, every dream, every tomorrow — with you.</p>
     </div>
   </section>
 
