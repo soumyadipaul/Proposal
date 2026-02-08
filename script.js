@@ -40,10 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   typeEffect();
 
-  /* ✅ TOUCH-END EVENT (ANDROID FIX) */
-  holdBtn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-
+  function proceed() {
     hold.classList.add("hidden");
     proposal.classList.remove("hidden");
 
@@ -61,6 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setTimeout(() => heart.remove(), 4000);
     }, 300);
-  });
+  }
+
+  // ✅ SUPPORT BOTH TAP TYPES
+  holdBtn.addEventListener("click", proceed);
+  holdBtn.addEventListener("touchstart", proceed);
 
 });
