@@ -5,8 +5,10 @@ const proposal = document.getElementById("proposal");
 const holdBtn = document.getElementById("holdBtn");
 const music = document.getElementById("bgMusic");
 
+/* ---------------- TERMINAL TYPE EFFECT ---------------- */
+
 const lines = [
-  "C:\\Users\\You> start love.exe",
+  "C:\\Users\\You> startlove.exe",
   "",
   "Initializing feelings...",
   "Loading memories...",
@@ -17,7 +19,6 @@ const lines = [
 let line = 0;
 let char = 0;
 
-/* TERMINAL TYPE */
 function typeCode() {
   if (line < lines.length) {
     if (char < lines[line].length) {
@@ -39,12 +40,40 @@ function typeCode() {
 
 window.addEventListener("load", typeCode);
 
-/* PRESS & HOLD LOGIC */
+/* ---------------- AUDIO UNLOCK (MOBILE FIX) ---------------- */
+
+let audioUnlocked = false;
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+
+  try {
+    music.volume = 0.4;
+    const playPromise = music.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          music.pause();
+          music.currentTime = 0;
+        })
+        .catch(() => {});
+    }
+  } catch {}
+}
+
+/* ---------------- PRESS & HOLD LOGIC ---------------- */
+
 let holdTimer = null;
 let holding = false;
 
 function startHold(e) {
   e.preventDefault();
+
+  // 🔑 Unlock audio at FIRST user gesture
+  unlockAudio();
+
   if (holding) return;
   holding = true;
   holdBtn.classList.add("holding");
@@ -60,7 +89,8 @@ function cancelHold() {
   clearTimeout(holdTimer);
 }
 
-/* EVENTS */
+/* ---------------- BUTTON EVENTS ---------------- */
+
 holdBtn.addEventListener("touchstart", startHold);
 holdBtn.addEventListener("touchend", cancelHold);
 holdBtn.addEventListener("touchcancel", cancelHold);
@@ -69,12 +99,14 @@ holdBtn.addEventListener("mousedown", startHold);
 holdBtn.addEventListener("mouseup", cancelHold);
 holdBtn.addEventListener("mouseleave", cancelHold);
 
-/* FINAL REVEAL */
+/* ---------------- FINAL REVEAL ---------------- */
+
 function revealProposal() {
   hold.classList.replace("visible", "hidden");
   proposal.classList.replace("hidden", "visible");
 
   try {
+    music.currentTime = 0;
     music.volume = 0.4;
     music.play();
   } catch {}
@@ -82,7 +114,8 @@ function revealProposal() {
   startHearts();
 }
 
-/* CONTINUOUS HEARTS */
+/* ---------------- CONTINUOUS FLOATING HEARTS ---------------- */
+
 function startHearts() {
   setInterval(() => {
     const heart = document.createElement("div");
@@ -94,6 +127,8 @@ function startHearts() {
 
     document.body.appendChild(heart);
 
-    setTimeout(() => heart.remove(), 8000);
+    setTimeout(() => {
+      heart.remove();
+    }, 8000);
   }, 250);
 }
