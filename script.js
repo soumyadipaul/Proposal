@@ -1,18 +1,14 @@
-/* FINAL ROBUST script.js
-   - AudioContext + decoded buffer playback (gesture-safe)
-   - Hold-to-reveal (1.6s)
-   - Continuous floating hearts
-   - Terminal typing effect
-*/
+/* ================= ELEMENTS ================= */
 
 const codeEl = document.getElementById("code");
 const terminal = document.getElementById("terminal");
 const hold = document.getElementById("hold");
 const proposal = document.getElementById("proposal");
 const holdBtn = document.getElementById("holdBtn");
-const musicEl = document.getElementById("bgMusic"); // fallback element
+const music = document.getElementById("bgMusic");
 
-/* ---------------- TERMINAL TYPE EFFECT ---------------- */
+/* ================= TERMINAL TYPE EFFECT ================= */
+
 const lines = [
   "C:\\Users\\You> start love.exe",
   "",
@@ -23,16 +19,17 @@ const lines = [
 ];
 
 let line = 0;
-let ch = 0;
+let char = 0;
+
 function typeCode() {
   if (line < lines.length) {
-    if (ch < lines[line].length) {
-      codeEl.textContent += lines[line][ch++];
+    if (char < lines[line].length) {
+      codeEl.textContent += lines[line][char++];
       setTimeout(typeCode, 35);
     } else {
       codeEl.textContent += "\n";
       line++;
-      ch = 0;
+      char = 0;
       setTimeout(typeCode, 300);
     }
   } else {
@@ -42,58 +39,38 @@ function typeCode() {
     }, 600);
   }
 }
+
 window.addEventListener("load", typeCode);
 
-/* ---------------- AUDIO (AudioContext + Buffer) ---------------- */
-let audioCtx = null;
-let audioBuffer = null;
-let bufferSource = null;
-let gainNode = null;
-let audioSetupStarted = false;
-const AUDIO_URL = "music.mp3"; // must be same-origin (your repo)
+/* ================= AUDIO (HARD UNLOCK) ================= */
 
-// Initialize AudioContext and start fetching/decoding the audio
-function initAudioContextAndDecode() {
-  if (audioSetupStarted) return;
-  audioSetupStarted = true;
+/*
+  Browsers REQUIRE a simple tap/click activation.
+  Press-and-hold alone is NOT enough.
+*/
+
+let audioUnlocked = false;
+
+function unlockAudio() {
+  if (audioUnlocked) return;
 
   try {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AC();
-    // Resume (important for some browsers)
-    if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+    music.volume = 0;
+    music.loop = true;
 
-    // Fetch and decode the audio file (async)
-    fetch(AUDIO_URL)
-      .then((res) => res.arrayBuffer())
-      .then((arrBuf) => {
-        // decodeAudioData returns a promise in modern browsers
-        return audioCtx.decodeAudioData(arrBuf);
-      })
-      .then((decoded) => {
-        audioBuffer = decoded;
-      })
-      .catch(() => {
-        // If decoding fails, we keep audioBuffer null so fallback will try <audio>.
-        audioBuffer = null;
-      });
-  } catch (e) {
-    // If AudioContext not supported or fails, fallback to <audio>
-    audioCtx = null;
-    audioBuffer = null;
-  }
+    const p = music.play();
+    if (p !== undefined) {
+      p.then(() => {
+        music.pause();
+        music.currentTime = 0;
+        audioUnlocked = true;
+      }).catch(() => {});
+    }
+  } catch {}
 }
 
-// Fade helper for WebAudio gain node
-function fadeGainTo(targetVol = 0.4, duration = 1200) {
-  if (!gainNode || !audioCtx) return;
-  const now = audioCtx.currentTime;
-  gainNode.gain.cancelScheduledValues(now);
-  gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-  gainNode.gain.linearRampToValueAtTime(targetVol, now + duration / 1000);
-}
+/* ================= PRESS & HOLD ================= */
 
-/* ---------------- PRESS & HOLD LOGIC ---------------- */
 let holdTimer = null;
 let holding = false;
 
@@ -113,80 +90,47 @@ function cancelHold() {
   clearTimeout(holdTimer);
 }
 
-/* ---------------- EVENTS: gesture-safe unlocking ---------------- */
-/* Use pointerdown to unlock/init audio but DO NOT preventDefault here */
+/* ================= EVENTS ================= */
+
+/*
+  🔑 THIS is the key:
+  - click = audio unlock (guaranteed)
+  - pointerdown = visual hold logic
+*/
+
+holdBtn.addEventListener("click", unlockAudio, { once: true });
+
 holdBtn.addEventListener("pointerdown", () => {
-  // Start the audio context & start fetching/decoding (gesture-safe)
-  initAudioContextAndDecode();
-  // Start the hold logic (we don't block the gesture)
+  unlockAudio();     // safety
   startHold();
 });
-
-/* Keep the touch/mouse event handlers that cancel selection/drag but do not block the gesture */
-holdBtn.addEventListener("touchstart", (e) => e.preventDefault()); // prevents selection/drag
-holdBtn.addEventListener("mousedown", (e) => e.preventDefault());
 
 holdBtn.addEventListener("pointerup", cancelHold);
 holdBtn.addEventListener("pointerleave", cancelHold);
 holdBtn.addEventListener("touchcancel", cancelHold);
 
-/* ---------------- FINAL REVEAL: play audio (buffer if ready) ---------------- */
+/* Prevent text selection WITHOUT breaking activation */
+holdBtn.style.userSelect = "none";
+holdBtn.addEventListener("selectstart", e => e.preventDefault());
+
+/* ================= FINAL REVEAL ================= */
+
 function revealProposal() {
-  // show/hide screens (no display:none)
   hold.classList.replace("visible", "hidden");
   proposal.classList.replace("hidden", "visible");
 
-  // If audioBuffer is decoded and audioCtx present -> play via WebAudio (precise & reliable)
-  if (audioCtx && audioBuffer) {
-    try {
-      // Create gain & bufferSource
-      gainNode = audioCtx.createGain();
-      gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime); // start near 0
+  // Play music audibly now
+  music.currentTime = 0;
+  music.volume = 0.4;
+  music.play().catch(() => {});
 
-      bufferSource = audioCtx.createBufferSource();
-      bufferSource.buffer = audioBuffer;
-      bufferSource.loop = true;
-
-      bufferSource.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      bufferSource.start(0);
-      // Fade gain up to audible level
-      fadeGainTo(0.4, 1000);
-    } catch (e) {
-      // fallback to HTMLAudio element
-      tryPlayHtmlAudioFallback();
-    }
-  } else {
-    // If not ready, fallback to HTMLAudio element - best-effort
-    tryPlayHtmlAudioFallback();
-  }
-
-  // start hearts regardless
   startHearts();
 }
 
-// HTMLAudio fallback: best-effort play of the <audio> element
-function tryPlayHtmlAudioFallback() {
-  try {
-    // try resetting to 0 so the start is heard if allowed
-    try { musicEl.currentTime = 0; } catch {}
-    musicEl.volume = 0.4;
-    const p = musicEl.play();
-    if (p && typeof p.then === "function") {
-      p.catch(() => {
-        // silent failure; nothing more we can do
-      });
-    }
-  } catch (e) {
-    // ignore
-  }
-}
+/* ================= FLOATING HEARTS ================= */
 
-/* ---------------- HEARTS ---------------- */
 function startHearts() {
-  // create an interval to spawn hearts continuously
-  const iv = setInterval(() => {
+  setInterval(() => {
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.textContent = Math.random() > 0.5 ? "💗" : "💜";
@@ -195,10 +139,6 @@ function startHearts() {
     heart.style.animationDuration = (4 + Math.random() * 3) + "s";
 
     document.body.appendChild(heart);
-    // remove when animation done
-    setTimeout(() => heart.remove(), 9000);
+    setTimeout(() => heart.remove(), 8000);
   }, 250);
-
-  // stop after 20s to avoid infinite DOM growth (optional)
-  setTimeout(() => clearInterval(iv), 20000);
 }
