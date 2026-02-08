@@ -49,19 +49,14 @@ let audioUnlocked = false;
 function unlockAudio() {
   if (audioUnlocked) return;
 
-  try {
-    music.volume = 0;
-    music.loop = true;
+  music.volume = 0;
+  music.loop = true;
 
-    const p = music.play();
-    if (p !== undefined) {
-      p.then(() => {
-        music.pause();
-        music.currentTime = 0;
-        audioUnlocked = true;
-      }).catch(() => {});
-    }
-  } catch {}
+  music.play().then(() => {
+    music.pause();
+    music.currentTime = 0;
+    audioUnlocked = true;
+  }).catch(() => {});
 }
 
 /* ================= PRESS & HOLD ================= */
@@ -88,16 +83,16 @@ function cancelHold() {
 holdBtn.addEventListener("click", unlockAudio, { once: true });
 
 holdBtn.addEventListener("pointerdown", () => {
-  unlockAudio();   // audio permission
-  startHold();     // visual hold only
+  unlockAudio();
+  startHold();
 });
 
 holdBtn.addEventListener("pointerup", cancelHold);
 holdBtn.addEventListener("pointerleave", cancelHold);
 holdBtn.addEventListener("touchcancel", cancelHold);
 
-/* Prevent text selection */
-holdBtn.style.userSelect = "none";
+/* Prevent browser long-press behavior */
+holdBtn.addEventListener("contextmenu", e => e.preventDefault());
 holdBtn.addEventListener("selectstart", e => e.preventDefault());
 
 /* ================= FINAL REVEAL ================= */
@@ -106,12 +101,11 @@ function revealProposal() {
   hold.classList.replace("visible", "hidden");
   proposal.classList.replace("hidden", "visible");
 
-  // 🔔 HAPTIC — ONLY ON SUCCESS
+  /* ✅ SINGLE HAPTIC — SUCCESS ONLY */
   if (navigator.vibrate) {
-    navigator.vibrate(40); // subtle, premium tap
+    navigator.vibrate(40);
   }
 
-  // 🎵 Music
   music.currentTime = 0;
   music.volume = 0.4;
   music.play().catch(() => {});
