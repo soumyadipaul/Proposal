@@ -42,12 +42,7 @@ function typeCode() {
 
 window.addEventListener("load", typeCode);
 
-/* ================= AUDIO (HARD UNLOCK) ================= */
-
-/*
-  Browsers REQUIRE a simple tap/click activation.
-  Press-and-hold alone is NOT enough.
-*/
+/* ================= AUDIO UNLOCK ================= */
 
 let audioUnlocked = false;
 
@@ -79,9 +74,7 @@ function startHold() {
   holding = true;
   holdBtn.classList.add("holding");
 
-  holdTimer = setTimeout(() => {
-    revealProposal();
-  }, 1600);
+  holdTimer = setTimeout(revealProposal, 1600);
 }
 
 function cancelHold() {
@@ -92,24 +85,18 @@ function cancelHold() {
 
 /* ================= EVENTS ================= */
 
-/*
-  🔑 THIS is the key:
-  - click = audio unlock (guaranteed)
-  - pointerdown = visual hold logic
-*/
-
 holdBtn.addEventListener("click", unlockAudio, { once: true });
 
 holdBtn.addEventListener("pointerdown", () => {
-  unlockAudio();     // safety
-  startHold();
+  unlockAudio();   // audio permission
+  startHold();     // visual hold only
 });
 
 holdBtn.addEventListener("pointerup", cancelHold);
 holdBtn.addEventListener("pointerleave", cancelHold);
 holdBtn.addEventListener("touchcancel", cancelHold);
 
-/* Prevent text selection WITHOUT breaking activation */
+/* Prevent text selection */
 holdBtn.style.userSelect = "none";
 holdBtn.addEventListener("selectstart", e => e.preventDefault());
 
@@ -119,7 +106,12 @@ function revealProposal() {
   hold.classList.replace("visible", "hidden");
   proposal.classList.replace("hidden", "visible");
 
-  // Play music audibly now
+  // 🔔 HAPTIC — ONLY ON SUCCESS
+  if (navigator.vibrate) {
+    navigator.vibrate(40); // subtle, premium tap
+  }
+
+  // 🎵 Music
   music.currentTime = 0;
   music.volume = 0.4;
   music.play().catch(() => {});
