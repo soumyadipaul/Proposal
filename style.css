@@ -1,10 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
+/* 🔒 STOP TEXT SELECTION & LONG PRESS */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
 body {
@@ -40,6 +45,7 @@ body {
   align-items: center;
   text-align: center;
   color: #7a6fa4;
+  pointer-events: auto;
 }
 
 #hold h1 {
@@ -61,14 +67,22 @@ body {
   color: #d48bb3;
 }
 
+/* ✅ REAL TAP BUTTON */
 #holdBtn {
   background: #c7b4ff;
   color: white;
   border: none;
-  padding: 12px 26px;
+  padding: 14px 30px;
   border-radius: 30px;
+  font-size: 15px;
+
+  position: relative;
+  z-index: 9999;
+
+  touch-action: manipulation;
+  pointer-events: auto;
   cursor: pointer;
-  font-size: 14px;
+
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
@@ -124,4 +138,4 @@ body {
 
 .hidden {
   display: none;
-  }
+}
